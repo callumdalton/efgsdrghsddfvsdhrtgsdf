@@ -11,10 +11,11 @@ jobs:
           
       - name: Build WDA IPA
         run: |
-          WDA_PATH=$(find ~/.appium -name "WebDriverAgent.xcodeproj" -type f | head -1 | xargs dirname)
-          cd "$WDA_PATH"
+          WDA_PATH=$(find ~/.appium -name "WebDriverAgent.xcodeproj" | head -1 | xargs dirname)
+          echo "Found WDA at: $WDA_PATH"
+          ls "$WDA_PATH"
           xcodebuild build-for-testing \
-            -project WebDriverAgent.xcodeproj \
+            -project "$WDA_PATH/WebDriverAgent.xcodeproj" \
             -scheme WebDriverAgentRunner \
             -destination generic/platform=iOS \
             CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO \

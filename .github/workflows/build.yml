@@ -8,22 +8,28 @@ jobs:
         run: |
           npm install -g appium
           appium driver install xcuitest
-          
+
       - name: Build WDA IPA
         run: |
           WDA_PATH=$(find ~/.appium -name "WebDriverAgent.xcodeproj" | head -1 | xargs dirname)
           echo "Found WDA at: $WDA_PATH"
-          ls "$WDA_PATH"
           xcodebuild build-for-testing \
             -project "$WDA_PATH/WebDriverAgent.xcodeproj" \
             -scheme WebDriverAgentRunner \
             -destination generic/platform=iOS \
-            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
             IPHONEOS_DEPLOYMENT_TARGET=14.0 \
             -derivedDataPath /tmp/wda_build
+
+      - name: Package IPA
+        run: |
+          mkdir -p /tmp/ipa/Payload
+          cp -r /tmp/wda_build/Build/Products/Debug-iphoneos/WebDriverAgentRunner-Runner.app /tmp/ipa/Payload/
+          cd /tmp/ipa
+          zip -r /tmp/WebDriverAgent.ipa Payload/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: WDA-build
-          path: /tmp/wda_build/
+          name: WDA-ipa
+          path: /tmp/WebDriverAgent.ipa
